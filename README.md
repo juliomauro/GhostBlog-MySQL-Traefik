@@ -71,10 +71,10 @@ If you have an error, check the container log using commands below.
 
 ### Testing
 
-Open the Traefik dashboard with its URL, mine is http://<<TRAEFIK-HOSTNAME>>/. Log in with the user and password on the 'traefik.toml' file, and following is the Traefik dashboard.
+Open the Traefik dashboard with its URL, mine is http://TRAEFIK-HOSTNAME/. Log in with the user and password on the 'traefik.toml' file, and following is the Traefik dashboard.
   
   ![Screenshot](screenshot.png)
       
-For the Ghost installation, type the ghost URL on the address bar, mine is http://<<SITE-HOSTNAME>>/
+For the Ghost installation, type the ghost URL on the address bar, mine is http://SITE-HOSTNAME/
 
 
