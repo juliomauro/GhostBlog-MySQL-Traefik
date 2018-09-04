@@ -1,0 +1,72 @@
+version: '3.3'
+
+services:
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    volumes:
+      - ./data:/var/lib/mysql
+    labels:
+      - "traefik.enable=false"
+    networks:
+      - internal
+    environment:
+      MYSQL_ROOT_PASSWORD: <<SET-ROOT-PASSWORD>>
+      MYSQL_USER: <<SET-USER-MYSQL>>
+      MYSQL_PASSWORD: <<SET-PASSWORD>>
+      MYSQL_DATABASE: <<SET-DATABASE>>
+    container_name: mysql
+  
+  traefik:
+    image: traefik:latest
+    command: --docker
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=dashboard"
+      - "traefik.frontend.rule=Host:<<SET-TRAEFIK-HOSTNAME>>"
+      - "traefik.port=8080"
+    networks:
+      - traefiknet
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.toml:/traefik.toml
+      - ./acme.json:/acme.json
+    container_name: traefik
+    restart: always
+
+  ghost:
+    image: ghost:1-alpine
+    restart: always
+    ports:
+      - 2368
+    volumes:
+      - ./blog:/var/lib/ghost/content
+    labels:
+      - "traefik.enabled=true"
+      - "traefik.backend=ghost"
+      - "traefik.frontend.rule=Host:<<SET-SITE-HOSTNAME>>"
+      - "traefik.docker.network=traefiknet"
+      - "traefik.port=2368"
+    networks:
+      - internal
+      - traefiknet
+    environment:
+      database__client: mysql
+      database__connection__host: mysql
+      database__connection__user: <<SET-USER-MYSQL>>
+      database__connection__password: <<SET-PASSWORD>>
+      database__connection__database: <<SET-DATABASE>>
+    container_name: ghost
+    depends_on:
+      - mysql
+      - traefik
+
+networks:
+  traefiknet:
+    external: true
+  internal:
+    external: false
